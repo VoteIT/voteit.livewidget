@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:tal="http://xml.zope.org/namespaces/tal"
+  xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+  i18n:domain="voteit.livewidget">
+<head></head>
+<body>
+
+<h1>${meeting.title}</h1>
+<small>Live feed from this meeting</small>
+
+<tal:iterate repeat="obj view.get_objects()">
+  <p class="listing_block">
+    ${obj.title}
+    <div class="meta">
+      Added in
+      <a href="${request.resource_url(obj.__parent__)}">${obj.__parent__.title}</a> by ${obj.creators[0]}
+      at ${view.dt_util.dt_format(obj.created)}
+    </div>
+  </p>
+</tal:iterate>
+
+</body>
+</html>
