@@ -1,18 +1,16 @@
 from betahaus.viewcomponent import view_action
+from pyramid.httpexceptions import HTTPForbidden
 from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.traversal import find_resource
+from pyramid.traversal import find_root
+from pyramid.traversal import resource_path
 from pyramid.view import view_config
 from pyramid.view import view_defaults
 from voteit.core import security
+from voteit.core.models.interfaces import IAgendaItem
 from voteit.core.models.interfaces import IMeeting
-from voteit.core.views.base_edit import DefaultEditForm
-from pyramid.traversal import find_interface
-from pyramid.httpexceptions import HTTPForbidden
-from pyramid.traversal import resource_path
-from pyramid.traversal import find_root
-from pyramid.traversal import find_resource
-from voteit.core.models.interfaces import IDateTimeUtil
-from voteit.core.models.interfaces import IFanstaticResources
 from voteit.core.views.api import APIView
+from voteit.core.views.base_edit import DefaultEditForm
 
 from voteit.livewidget import _
 from voteit.livewidget.schemas import LiveWidgetSettingsSchema
@@ -40,8 +38,7 @@ class LiveWidgetSettingsForm(DefaultEditForm):
         return LiveWidgetSettingsSchema()
 
 
-@view_defaults(context = IMeeting,
-               permission = NO_PERMISSION_REQUIRED)
+@view_defaults(permission = NO_PERMISSION_REQUIRED)
 class LiveWidgetView(object):
     """ This view renders listings, if live widget is enabled.
     """
@@ -56,13 +53,23 @@ class LiveWidgetView(object):
         self.root = find_root(meeting)
         self.dt_util = self.api.dt_util
 
-    @view_config(name = "live_widget", renderer = "voteit.livewidget:templates/live_widget.pt")
+    @view_config(context = IMeeting,
+                 name = "live_widget",
+                 renderer = "voteit.livewidget:templates/live_widget.pt")
+    @view_config(context = IAgendaItem,
+                 name = "live_widget",
+                 renderer = "voteit.livewidget:templates/live_widget.pt")
     def view(self):
         #FIXME: This is not compatible with the newer Arche VoteIT
         self.api.include_needed(self.context, self.request, self)
         return {'meeting': self.api.meeting}
 
-    @view_config(name = "live_widget.json", renderer = "json")
+    @view_config(context = IMeeting,
+                 name = "live_widget.json",
+                 renderer = "json")
+    @view_config(context = IAgendaItem,
+                 name = "live_widget.json",
+                 renderer = "json")
     def json(self):
         output = []
         for obj in self.get_objects():

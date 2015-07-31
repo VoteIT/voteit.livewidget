@@ -4,10 +4,10 @@
   xmlns:i18n="http://xml.zope.org/namespaces/i18n"
   i18n:domain="voteit.livewidget">
 <head></head>
-<body>
+<body style="padding: 10px;">
 
 <h1>${meeting.title}</h1>
-<small>Live feed from this meeting</small>
+<small>Live feed from this meeting.</small>
 
 <tal:iterate repeat="obj view.get_objects()">
   <p class="listing_block">
