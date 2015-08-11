@@ -5,20 +5,18 @@
   i18n:domain="voteit.livewidget">
 <head></head>
 <body style="padding: 10px;">
-
 <h1>${meeting.title}</h1>
 <small>Live feed from this meeting.</small>
-
 <tal:iterate repeat="obj view.get_objects()">
   <p class="listing_block">
     ${obj.title}
     <div class="meta">
       Added in
-      <a href="${request.resource_url(obj.__parent__)}">${obj.__parent__.title}</a> by ${obj.creators[0]}
+      <a href="${request.resource_url(obj.__parent__)}" target="_blank">${obj.__parent__.title}</a>
+      by ${obj.creators[0]}
       at ${view.dt_util.dt_format(obj.created)}
     </div>
   </p>
 </tal:iterate>
-
 </body>
 </html>
