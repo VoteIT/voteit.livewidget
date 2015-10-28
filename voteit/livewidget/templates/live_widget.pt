@@ -6,17 +6,20 @@
 <head></head>
 <body style="padding: 10px;">
 <h1>${meeting.title}</h1>
-<small>Live feed from this meeting.</small>
+<small i18n:translate="">Feed from this meeting.</small>
+<div class="list-group">
 <tal:iterate repeat="obj view.get_objects()">
-  <p class="listing_block">
+  <div class="list-group-item">
     ${obj.title}
-    <div class="meta">
+    <div class="metadata text-muted" i18n:translate="metadata">
       Added in
-      <a href="${request.resource_url(obj.__parent__)}" target="_blank">${obj.__parent__.title}</a>
-      by ${obj.creators[0]}
-      at ${view.dt_util.dt_format(obj.created)}
+      <a href="${request.resource_url(obj.__parent__)}"
+        target="_blank" i18n:name="link">${obj.__parent__.title}</a>
+      by <span i18n:name="creator">${obj.creator[0]}</span>
+      at <span i18n:name="time">${request.dt_handler.format_dt(obj.created)}</span>
     </div>
-  </p>
+  </div>
 </tal:iterate>
+</div>
 </body>
 </html>

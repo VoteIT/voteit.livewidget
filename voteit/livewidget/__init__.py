@@ -6,3 +6,4 @@ _ = TranslationStringFactory('voteit.livewidget')
 
 def includeme(config):
     config.include('.views')
+    config.include('.schemas')
