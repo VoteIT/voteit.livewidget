@@ -24,6 +24,3 @@ def add_livewidget_controls(schema, event):
 
 def includeme(config):
     config.add_subscriber(add_livewidget_controls, [EditMeetingSchema, ISchemaCreatedEvent])
-    #Make sure meeting has a 'live_widget_enabled' attribute
-    from voteit.core.models.meeting import Meeting
-    Meeting.live_widget_enabled = False
