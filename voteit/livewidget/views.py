@@ -4,9 +4,13 @@ from pyramid.traversal import find_resource
 from pyramid.traversal import resource_path
 from pyramid.view import view_config
 from pyramid.view import view_defaults
+from voteit.core import security
 from voteit.core.models.interfaces import IAgendaItem
 from voteit.core.models.interfaces import IMeeting
-from arche.views.base import BaseView
+from voteit.core.views.base_edit import ArcheFormCompat
+from voteit.core.views.control_panel import control_panel_category
+from voteit.core.views.control_panel import control_panel_link
+from arche.views.base import BaseView, DefaultEditForm
 
 from voteit.livewidget import _
 
@@ -57,5 +61,44 @@ class LiveWidgetView(BaseView):
             path = self.root.document_map.address_for_docid(docid)
             yield find_resource(self.root, path)
 
+
+def _check_active_for_meeting(context, request, va):
+    return bool(context.live_widget_enabled)
+
+
+class LiveWidgetSettingsForm(ArcheFormCompat, DefaultEditForm):
+    type_name = 'Meeting'
+    schema_name = 'live_widget_settings'
+    title = _("Live widget")
+
+
 def includeme(config):
+    from voteit.core.models.meeting import Meeting
+
+    #Set properties on meeting
+    def get_live_widget_enabled(self):
+        return self.get_field_value('live_widget_enabled', False)
+    def set_live_widget_enabled(self, value):
+        return self.set_field_value('live_widget_enabled', value)
+    Meeting.live_widget_enabled = property(get_live_widget_enabled, set_live_widget_enabled)
+
     config.scan()
+    config.add_view_action(control_panel_category,
+                           'control_panel', 'live_widget',
+                           panel_group='control_panel_live_widget',
+                           title=_("Live widget"),
+                           check_active=_check_active_for_meeting)
+    config.add_view_action(control_panel_link,
+                           'control_panel_live_widget', 'settings',
+                           title=_("Settings"), view_name='live_widget_settings')
+    config.add_view_action(control_panel_link,
+                           'control_panel_live_widget', 'widget',
+                           title=_("Widget"), view_name='live_widget')
+
+    config.add_view(
+        LiveWidgetSettingsForm,
+        context=IMeeting,
+        name="live_widget_settings",
+        permission=security.MODERATE_MEETING,
+        renderer="arche:templates/form.pt",
+    )
